@@ -67,7 +67,7 @@ module axi_cdc #(
       state, new_state;
 
 
-  always_ff @(posedge clk_p)
+  always_ff @(posedge clk_p or negedge rst_p)
     if (!rst_p) state <= IDLE;
     else state <= new_state;
 
@@ -137,26 +137,20 @@ module axi_cdc #(
 
       if (state == LSB) begin
         w_data = {w_axis_last_buf, w_data_buf[WIDTH_S-1 : 0]};
-       
       end
       else if (state == MSB) begin
         w_data = {w_axis_last_buf, w_data_buf[WIDTH_P-1 : WIDTH_S]};
-        
       end
 
       else if (state == LITTLE_ENDIAN) begin
         w_data = {1'b0, w_data_buf[WIDTH_S-1 : 0]};
-        
       end
 
       else begin
         w_data = {1'b0, w_data_buf[WIDTH_P-1 : WIDTH_S]};
-       
       end
 
-
   end
-
 
 
 endmodule
