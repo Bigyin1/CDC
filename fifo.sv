@@ -1,4 +1,4 @@
-module sync #(
+module sync2 #(
     parameter SIZE = 4
 ) (
     input clk,
@@ -8,23 +8,23 @@ module sync #(
     output [SIZE-1:0] o_ctrl
 );
 
-  logic [SIZE-1:0] sync_r1;
-  logic [SIZE-1:0] sync_r2;
+  logic [SIZE-1:0] sync2_r1;
+  logic [SIZE-1:0] sync2_r2;
 
   always_ff @(posedge clk or negedge n_rst) begin
     if (!n_rst)
-        {sync_r2, sync_r1} <= 0;
+        {sync2_r2, sync2_r1} <= 0;
     else
-        {sync_r2, sync_r1} <= {sync_r1, i_ctrl};
+        {sync2_r2, sync2_r1} <= {sync2_r1, i_ctrl};
 
   end
 
-  assign o_ctrl = sync_r2;
+  assign o_ctrl = sync2_r2;
 
 endmodule
 
 
-module fifo_async #(
+module fifo_async2 #(
     parameter WIDTH = 32,
     parameter DEPTH = 8
 ) (
@@ -74,34 +74,34 @@ module fifo_async #(
   );
 
 
-  logic [ADDRSIZE:0] sync_w_gray;
-  logic [ADDRSIZE:0] sync_r_gray;
+  logic [ADDRSIZE:0] sync2_w_gray;
+  logic [ADDRSIZE:0] sync2_r_gray;
 
-  sync #(
+  sync2 #(
       .SIZE(ADDRSIZE + 1)
-  ) sync_w2r (
+  ) sync2_w2r (
       .clk(r_clk),
       .n_rst(r_rst),
 
       .i_ctrl(w_gray),
-      .o_ctrl(sync_w_gray)
+      .o_ctrl(sync2_w_gray)
   );
 
-  sync #(
+  sync2 #(
       .SIZE(ADDRSIZE + 1)
-  ) sync_r2w (
+  ) sync2_r2w (
       .clk(w_clk),
       .n_rst(w_rst),
 
       .i_ctrl(r_gray),
-      .o_ctrl(sync_r_gray)
+      .o_ctrl(sync2_r_gray)
   );
 
-  assign r_empty = (sync_w_gray == r_gray);
+  assign r_empty = (sync2_w_gray == r_gray);
 
-  assign w_full = ( (w_gray[ADDRSIZE]       !=  sync_r_gray[ADDRSIZE] ) &&
-                    (w_gray[ADDRSIZE-1]     !=  sync_r_gray[ADDRSIZE-1]) &&
-                    (w_gray[ADDRSIZE-2:0]   ==  sync_r_gray[ADDRSIZE-2:0]) );
+  assign w_full = ( (w_gray[ADDRSIZE]       !=  sync2_r_gray[ADDRSIZE] ) &&
+                    (w_gray[ADDRSIZE-1]     !=  sync2_r_gray[ADDRSIZE-1]) &&
+                    (w_gray[ADDRSIZE-2:0]   ==  sync2_r_gray[ADDRSIZE-2:0]) );
 
 
   logic [WIDTH - 1:0] data[0:DEPTH - 1];

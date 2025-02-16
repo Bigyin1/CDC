@@ -1,14 +1,8 @@
 
-
-
-
-
-
-
-
 module axi_cdc #(
     parameter WIDTH_P = 64,
-    WIDTH_S = 32
+    WIDTH_S = 32,
+    FIFO_DEPTH = 8
 ) (
     input wire clk_p,
     input wire clk_s,
@@ -42,7 +36,7 @@ module axi_cdc #(
 
   fifo_async #(
       .WIDTH(WIDTH_S + 1),
-      .DEPTH(8)
+      .DEPTH(FIFO_DEPTH)
   ) fifo (
       .w_clk (clk_p),
       .w_rst (rst_p),
