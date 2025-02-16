@@ -1,5 +1,11 @@
 
 
+
+
+
+
+
+
 module axi_cdc #(
     parameter WIDTH_P = 64,
     WIDTH_S = 32
@@ -58,11 +64,11 @@ module axi_cdc #(
 
 
   enum logic [2:0] {
-    IDLE = 3'b100,
-    LSB = 3'b000,
-    MSB = 3'b001,
+    IDLE          = 3'b100,
+    LSB           = 3'b000,
+    MSB           = 3'b001,
     LITTLE_ENDIAN = 3'b010,
-    BIG_ENDIAN = 3'b011
+    BIG_ENDIAN    = 3'b011
   }
       state, new_state;
 
@@ -125,8 +131,9 @@ module axi_cdc #(
       BIG_ENDIAN: begin
         new_state = LSB;
       end
-      
-      default:begin end
+
+      default: begin
+      end
     endcase
   end
 
@@ -135,20 +142,15 @@ module axi_cdc #(
 
   always_comb begin
 
-      if (state == LSB) begin
-        w_data = {w_axis_last_buf, w_data_buf[WIDTH_S-1 : 0]};
-      end
-      else if (state == MSB) begin
-        w_data = {w_axis_last_buf, w_data_buf[WIDTH_P-1 : WIDTH_S]};
-      end
-
-      else if (state == LITTLE_ENDIAN) begin
-        w_data = {1'b0, w_data_buf[WIDTH_S-1 : 0]};
-      end
-
-      else begin
-        w_data = {1'b0, w_data_buf[WIDTH_P-1 : WIDTH_S]};
-      end
+    if (state == LSB) begin
+      w_data = {w_axis_last_buf, w_data_buf[WIDTH_S-1 : 0]};
+    end else if (state == MSB) begin
+      w_data = {w_axis_last_buf, w_data_buf[WIDTH_P-1 : WIDTH_S]};
+    end else if (state == LITTLE_ENDIAN) begin
+      w_data = {1'b0, w_data_buf[WIDTH_S-1 : 0]};
+    end else begin
+      w_data = {1'b0, w_data_buf[WIDTH_P-1 : WIDTH_S]};
+    end
 
   end
 

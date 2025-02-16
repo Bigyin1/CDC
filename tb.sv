@@ -63,23 +63,20 @@ module AXI_Bridge_TB ();
     s_rst = 1;
 
 
-    for (int i=0; i<16; ++i) begin
-        @(posedge p_clk);
+    for (int i = 0; i < 16; ++i) begin
+      @(posedge p_clk);
 
-        if (p_axis_ready) begin
-            p_axis_data <= $random;
-            p_axis_valid <= 1;
-            if (i == 15)
-                p_axis_last <= 1;
-            else
-                p_axis_last <= 0;
+      if (p_axis_ready) begin
+        p_axis_data  <= $random;
+        p_axis_valid <= 1;
+        if (i == 15) p_axis_last <= 1;
+        else p_axis_last <= 0;
 
-            cfg <= 0;
-        end
-        else begin
-            @(posedge p_axis_ready);
-        end
-        
+        cfg <= 0;
+      end else begin
+        @(posedge p_axis_ready);
+      end
+
     end
 
 
