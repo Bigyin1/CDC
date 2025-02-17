@@ -1,14 +1,8 @@
 
-
-
-
-
-
-
-
 module axi_cdc #(
     parameter WIDTH_P = 64,
-    WIDTH_S = 32
+    WIDTH_S = 32,
+    FIFO_DEPTH = 8
 ) (
     input wire clk_p,
     input wire clk_s,
@@ -42,7 +36,7 @@ module axi_cdc #(
 
   fifo_async #(
       .WIDTH(WIDTH_S + 1),
-      .DEPTH(8)
+      .DEPTH(FIFO_DEPTH)
   ) fifo (
       .w_clk (clk_p),
       .w_rst (rst_p),
@@ -79,6 +73,8 @@ module axi_cdc #(
 
 
   assign p_axis_ready = !w_full && (state == IDLE || state == MSB || state == LSB);
+
+  logic handshake;
 
   assign handshake = p_axis_ready && p_axis_valid;
 
@@ -121,15 +117,23 @@ module axi_cdc #(
             2'b10: new_state = LITTLE_ENDIAN;
             2'b11: new_state = BIG_ENDIAN;
           endcase
-        else if (w_full) new_state = state;
-        else new_state = IDLE;
+        else if (w_full)
+          new_state = state;
+        else
+          new_state = IDLE;
       end
 
       LITTLE_ENDIAN: begin
-        new_state = MSB;
+        if (w_full)
+          new_state = state;
+        else
+          new_state = MSB;
       end
       BIG_ENDIAN: begin
-        new_state = LSB;
+        if (w_full)
+          new_state = state;
+        else
+          new_state = LSB;
       end
 
       default: begin
@@ -142,15 +146,25 @@ module axi_cdc #(
 
   always_comb begin
 
-    if (state == LSB) begin
-      w_data = {w_axis_last_buf, w_data_buf[WIDTH_S-1 : 0]};
-    end else if (state == MSB) begin
-      w_data = {w_axis_last_buf, w_data_buf[WIDTH_P-1 : WIDTH_S]};
-    end else if (state == LITTLE_ENDIAN) begin
-      w_data = {1'b0, w_data_buf[WIDTH_S-1 : 0]};
-    end else begin
-      w_data = {1'b0, w_data_buf[WIDTH_P-1 : WIDTH_S]};
-    end
+
+    case (state)
+
+      LSB:
+        w_data = {w_axis_last_buf, w_data_buf[WIDTH_S-1 : 0]};
+
+      MSB:
+        w_data = {w_axis_last_buf, w_data_buf[WIDTH_P-1 : WIDTH_S]};
+
+      LITTLE_ENDIAN:
+        w_data = {1'b0, w_data_buf[WIDTH_S-1 : 0]};
+
+      BIG_ENDIAN:
+        w_data = {1'b0, w_data_buf[WIDTH_P-1 : WIDTH_S]};
+
+      default: begin
+        w_data = 'X;
+      end
+    endcase
 
   end
 

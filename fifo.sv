@@ -106,8 +106,12 @@ module fifo_async #(
 
   logic [WIDTH - 1:0] data[0:DEPTH - 1];
 
-  always_ff @(posedge w_clk)
-    if (push & !w_full)
+  always_ff @(posedge w_clk or negedge w_rst)
+    if (!w_rst)
+        for (int i=0; i<DEPTH; ++i) begin    
+            data[i] <= 0;
+        end
+    else if (push & !w_full)
         data[w_memaddr] <= w_data;
 
   assign r_data = data[r_memaddr];

@@ -19,7 +19,7 @@ module gray_counter #(
 
   wire [SIZE:0] rgray_next, rbin_next;
 
-  assign rbin_next  = rbin + inc;
+  assign rbin_next  = rbin + (SIZE)'(inc);
 
   assign rgray_next = (rbin_next >> 1) ^ rbin_next;
 
