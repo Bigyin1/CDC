@@ -52,17 +52,18 @@ module axi_cdc #(
   );
 
 
+
   assign s_axis_data  = r_data[WIDTH_S-1 : 0];
   assign s_axis_last  = r_data[WIDTH_S];
   assign s_axis_valid = ~r_empty;
 
 
   enum logic [2:0] {
-    IDLE          = 3'b100,
-    LSB           = 3'b000,
-    MSB           = 3'b001,
-    LITTLE_ENDIAN = 3'b010,
-    BIG_ENDIAN    = 3'b011
+    IDLE          = 3'b000,
+    LSB           = 3'b001,
+    MSB           = 3'b010,
+    LITTLE_ENDIAN = 3'b011,
+    BIG_ENDIAN    = 3'b100
   }
       state, new_state;
 
