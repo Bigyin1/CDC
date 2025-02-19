@@ -1,5 +1,5 @@
 module sync #(
-    parameter SIZE = 4
+    parameter SIZE
 ) (
     input clk,
     input n_rst,
@@ -11,12 +11,11 @@ module sync #(
   logic [SIZE-1:0] sync_r1;
   logic [SIZE-1:0] sync_r2;
 
-  always_ff @(posedge clk or negedge n_rst) begin
+  always_ff @(posedge clk, negedge n_rst) begin
     if (!n_rst)
         {sync_r2, sync_r1} <= 0;
     else
         {sync_r2, sync_r1} <= {sync_r1, i_ctrl};
-
   end
 
   assign o_ctrl = sync_r2;
@@ -42,6 +41,7 @@ module fifo_async #(
 );
 
   localparam ADDRSIZE = $clog2(DEPTH);
+  localparam GRAY_CNT_SIZE = ADDRSIZE + 1;
 
 
   logic [  ADDRSIZE:0] r_gray;
@@ -78,7 +78,7 @@ module fifo_async #(
   logic [ADDRSIZE:0] sync_r_gray;
 
   sync #(
-      .SIZE(ADDRSIZE + 1)
+      .SIZE(GRAY_CNT_SIZE)
   ) sync_w2r (
       .clk(r_clk),
       .n_rst(r_rst),
@@ -88,7 +88,7 @@ module fifo_async #(
   );
 
   sync #(
-      .SIZE(ADDRSIZE + 1)
+      .SIZE(GRAY_CNT_SIZE)
   ) sync_r2w (
       .clk(w_clk),
       .n_rst(w_rst),
@@ -106,15 +106,10 @@ module fifo_async #(
 
   logic [WIDTH - 1:0] data[0:DEPTH - 1];
 
-  always_ff @(posedge w_clk or negedge w_rst)
-    if (!w_rst)
-        for (int i=0; i<DEPTH; ++i) begin    
-            data[i] <= 0;
-        end
-    else if (push & !w_full)
+  always_ff @(posedge w_clk)
+    if (push & !w_full)
         data[w_memaddr] <= w_data;
 
   assign r_data = data[r_memaddr];
-
 
 endmodule

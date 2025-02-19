@@ -1,7 +1,5 @@
-
-
 module gray_counter #(
-    parameter SIZE = 4
+    parameter SIZE
 ) (
     input clk,
     input n_rst,
@@ -23,7 +21,7 @@ module gray_counter #(
 
   assign rgray_next = (rbin_next >> 1) ^ rbin_next;
 
-  always @(posedge clk or negedge n_rst)
+  always @(posedge clk, negedge n_rst)
     if (!n_rst) {rbin, rgray} <= 0;
     else {rbin, rgray} <= {rbin_next, rgray_next};
 

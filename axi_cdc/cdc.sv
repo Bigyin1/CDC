@@ -83,7 +83,7 @@ module axi_cdc #(
   reg [WIDTH_P-1:0] w_data_buf;
   reg               w_axis_last_buf;
 
-  always_ff @(posedge clk_p or negedge rst_p) begin
+  always_ff @(posedge clk_p, negedge rst_p) begin
     if (!rst_p) begin
       w_data_buf <= 0;
       w_axis_last_buf <= 0;
@@ -146,8 +146,6 @@ module axi_cdc #(
   assign push = (state != IDLE);
 
   always_comb begin
-
-
     case (state)
 
       LSB:
